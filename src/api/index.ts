@@ -80,7 +80,7 @@ export function fetchChatAPIFile<T = any>(
   // console.log(data.sessionId)
 
   return post<T>({
-    url: 'http://192.168.193.93/a2papi/operationmaapconfig/v1/hetugpt/chatWithFile',
+    url: '/a2papi/operationmaapconfig/v1/hetugpt/chatWithFile',
     data,
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
