@@ -26,11 +26,11 @@ export default {
     failed: 'Failed',
     verify: 'Verify',
     unauthorizedTips: 'Unauthorized, please verify first.',
-		stopResponding: 'Stop Responding',
+    stopResponding: 'Stop Responding',
   },
   chat: {
     newChatButton: 'New Chat',
-    placeholder: 'Ask me anything...(Shift + Enter = line break, "/" to trigger prompts)',
+    placeholder: 'Ask me anything...(Shift + Enter = line break)',
     placeholderMobile: 'Ask me anything...',
     copy: 'Copy',
     copied: 'Copied',
