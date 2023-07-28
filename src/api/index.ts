@@ -52,6 +52,44 @@ export function fetchChatAPIProcess<T = any>(
   })
 }
 
+export function fetchChatAPIFile<T = any>(
+  params: {
+    prompt: string
+    options?: { conversationId?: string; parentMessageId?: string }
+    signal?: GenericAbortSignal
+    onDownloadProgress?: (progressEvent: AxiosProgressEvent) => void
+  },
+) {
+  // const settingStore = useSettingStore()
+  // const authStore = useAuthStore()
+
+  const data: Record<string, any> = {
+    message: params.prompt,
+    sessionId: params.options?.parentMessageId ?? '0',
+  }
+
+  // if (authStore.isChatGPTAPI) {
+  //   data = {
+  //     ...data,
+  //     systemMessage: settingStore.systemMessage,
+  //     temperature: settingStore.temperature,
+  //     top_p: settingStore.top_p,
+
+  //   }
+  // }
+  // console.log(data.sessionId)
+
+  return post<T>({
+    url: 'http://192.168.193.93/a2papi/operationmaapconfig/v1/hetugpt/chatWithFile',
+    data,
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    // signal: params.signal,
+    onDownloadProgress: params.onDownloadProgress,
+  })
+}
+
 export function fetchSession<T>() {
   return post<T>({
     url: '/session',
