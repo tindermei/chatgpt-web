@@ -217,7 +217,7 @@ async function onConversation(type: number) {
         +uuid,
         {
           dateTime: new Date().toLocaleString(),
-          text: 'Searching wctGPT with File... ',
+          text: 'Generating answers from wctGPT... ',
           loading: true,
           inversion: false,
           error: false,
