@@ -90,6 +90,48 @@ export function fetchChatAPIFile<T = any>(
   })
 }
 
+export function fetchChatAPIPy<T = any>(
+  params: {
+    prompt: string
+    options?: { conversationId?: string; parentMessageId?: string }
+    signal?: GenericAbortSignal
+    onDownloadProgress?: (progressEvent: AxiosProgressEvent) => void
+  },
+) {
+  // const settingStore = useSettingStore()
+  // const authStore = useAuthStore()
+
+  // const data: Record<string, any> = {
+  //   message: params.prompt,
+  //   sessionId: params.options?.parentMessageId ?? '0',
+  // }
+  const data: Record<string, any> = {
+    question: params.prompt,
+    sessionId: params.options?.parentMessageId ?? '0',
+  }
+
+  // if (authStore.isChatGPTAPI) {
+  //   data = {
+  //     ...data,
+  //     systemMessage: settingStore.systemMessage,
+  //     temperature: settingStore.temperature,
+  //     top_p: settingStore.top_p,
+
+  //   }
+  // }
+  // console.log(data.sessionId)
+
+  return post<T>({
+    url: 'https://bol.iwhalecloud.com/restapi/wctgpt',
+    data,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    // signal: params.signal,
+    onDownloadProgress: params.onDownloadProgress,
+  })
+}
+
 export function fetchSession<T>() {
   return post<T>({
     url: '/session',

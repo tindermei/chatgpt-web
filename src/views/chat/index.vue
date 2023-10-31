@@ -13,7 +13,7 @@ import HeaderComponent from './components/Header/index.vue'
 import { HoverButton, SvgIcon } from '@/components/common'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { useChatStore, usePromptStore } from '@/store'
-import { fetchChatAPIFile, fetchChatAPIProcess } from '@/api'
+import { fetchChatAPIFile, fetchChatAPIProcess, fetchChatAPIPy } from '@/api'
 import { t } from '@/locales'
 
 let controller = new AbortController()
@@ -53,7 +53,7 @@ dataSources.value.forEach((item, index) => {
 })
 
 function handleSubmit() {
-  onConversation(0)
+  onConversation(2)
 }
 
 function handleSubmitFile() {
@@ -284,11 +284,10 @@ async function onConversation(type: number) {
       }
 
       await fetchChatAPIOnce()
-      console.log('chat from file is finished or processing...')
+      // console.log('chat from file is finished or processing...')
     }
     catch (error: any) {
       const errorMessage = error?.message ?? t('common.wrong')
-      console.log(error)
       if (error.success)
         return
 
@@ -307,8 +306,139 @@ async function onConversation(type: number) {
       const currentChat = getChatByUuidAndIndex(+uuid, dataSources.value.length - 1)
 
       if (currentChat?.text && currentChat.text !== '') {
-        console.log('currentChat is not null')
+        updateChatSome(
+          +uuid,
+          dataSources.value.length - 1,
+          {
+            text: `${currentChat.text}\n [${errorMessage}]`,
+            error: false,
+            loading: false,
+          },
+        )
+        return
+      }
 
+      updateChat(
+        +uuid,
+        dataSources.value.length - 1,
+        {
+          dateTime: new Date().toLocaleString(),
+          text: errorMessage,
+          inversion: false,
+          error: true,
+          loading: false,
+          conversationOptions: null,
+          requestOptions: { prompt: message, options: { ...options } },
+        },
+      )
+      scrollToBottomIfAtBottom()
+    }
+    finally {
+      loading.value = false
+    }
+  }
+  if (type === 2) { // 基于Python服务的 wctGPT模式
+    if (lastContext && usingContext.value)
+      options = { ...lastContext }
+
+    try {
+      // console.log(options)
+      addChat(
+        +uuid,
+        {
+          dateTime: new Date().toLocaleString(),
+          text: 'Generating answers from wctGPT... ',
+          loading: true,
+          inversion: false,
+          error: false,
+          conversationOptions: null,
+          requestOptions: { prompt: message, options: { ...options } },
+        },
+      )
+
+      scrollToBottom()
+
+      const lastText = ''
+      const fetchChatAPIOnce = async () => {
+        await fetchChatAPIPy<Chat.ConversationResponse>({
+          prompt: message,
+          options,
+          signal: controller.signal,
+          onDownloadProgress: ({ event }) => {
+            const xhr = event.target
+            const { responseText } = xhr
+            // Always process the final line
+            // const lastIndex = responseText.lastIndexOf('\n', responseText.length - 2)
+            const chunk = responseText
+            // console.log(chunk)
+            // if (lastIndex !== -1)
+            // chunk = responseText.substring(lastIndex)
+            try {
+              const data = JSON.parse(chunk)
+              const retMessage = data.content
+              const reference = data.reference
+
+              const resp_text = `${lastText} \n  ${retMessage} \n\n Reference: \n Title: ${reference[0].title} \n Access URL: ${reference[0].url}`
+              // console.log('resp text:', resp_text)
+              updateChat(
+                +uuid,
+                dataSources.value.length - 1,
+                {
+                  dateTime: new Date().toLocaleString(),
+                  text: resp_text,
+                  inversion: false,
+                  error: false,
+                  loading: true,
+                  conversationOptions: { conversationId: data.conversationId, parentMessageId: uuid },
+                  requestOptions: { prompt: message, options: { ...options } },
+                },
+              )
+
+              // if (openLongReply && data.detail.choices[0].finish_reason === 'length') {
+              //   options.parentMessageId = data.id
+              //   lastText = data.text
+              //   message = ''
+              //   return fetchChatAPIOnce()
+              // }
+              scrollToBottom()
+
+              // scrollToBottomIfAtBottom()
+            }
+            // catch (error: any) {
+            //   console.log(error)
+            // }
+            finally {
+              // console.log('chat from file is processing...')
+
+              updateChatSome(+uuid, dataSources.value.length - 1, { loading: false })
+              // console.log('chat from file is finished...')
+            }
+          },
+        })
+      }
+
+      await fetchChatAPIOnce()
+    }
+    catch (error: any) {
+      const errorMessage = error?.message ?? t('common.wrong')
+      if (error.success)
+        return
+
+      if (error.message === 'canceled') {
+        updateChatSome(
+          +uuid,
+          dataSources.value.length - 1,
+          {
+            loading: false,
+          },
+        )
+        scrollToBottomIfAtBottom()
+        return
+      }
+
+      const currentChat = getChatByUuidAndIndex(+uuid, dataSources.value.length - 1)
+
+      if (currentChat?.text && currentChat.text !== '') {
         updateChatSome(
           +uuid,
           dataSources.value.length - 1,
@@ -682,7 +812,7 @@ onUnmounted(() => {
               />
             </template>
           </NAutoComplete>
-          <NButton v-if="false" type="primary" :disabled="buttonDisabled" @click="handleSubmit">
+          <NButton v-if="true" type="primary" :disabled="buttonDisabled" @click="handleSubmit">
             <template #icon>
               <span class="dark:text-black">
                 <SvgIcon icon="ri:send-plane-fill" />
