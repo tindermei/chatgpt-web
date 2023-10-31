@@ -421,7 +421,8 @@ async function onConversation(type: number) {
     }
     catch (error: any) {
       const errorMessage = error?.message ?? t('common.wrong')
-      if (error.success)
+      // console.log(error)
+      if (error.result)
         return
 
       if (error.message === 'canceled') {
@@ -819,7 +820,7 @@ onUnmounted(() => {
               </span>
             </template>
           </NButton>
-          <NButton type="warning" :disabled="buttonDisabled" @click="handleSubmitFile">
+          <NButton v-if="false" type="warning" :disabled="buttonDisabled" @click="handleSubmitFile">
             <template #icon>
               <span class="dark:text-black">
                 <SvgIcon icon="ri:send-plane-fill" />
