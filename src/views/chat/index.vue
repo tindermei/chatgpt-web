@@ -53,11 +53,15 @@ dataSources.value.forEach((item, index) => {
 })
 
 function handleSubmit() {
-  onConversation(2)
+  onConversation(0)
 }
 
 function handleSubmitFile() {
   onConversation(1)
+}
+
+function handleSubmitPy() {
+  onConversation(2)
 }
 
 async function onConversation(type: number) {
@@ -98,7 +102,7 @@ async function onConversation(type: number) {
       +uuid,
       {
         dateTime: new Date().toLocaleString(),
-        text: '',
+        text: 'Generating answers from Azure OpenAI...',
         loading: true,
         inversion: false,
         error: false,
@@ -377,8 +381,14 @@ async function onConversation(type: number) {
               const data = JSON.parse(chunk)
               const retMessage = data.content
               const reference = data.reference
+              let ref_text = ''
+              for (const item of reference)
+                ref_text = ` ${ref_text} \n [${item.title}](${item.url}) \n`
 
-              const resp_text = `${lastText} \n  ${retMessage} \n\n Reference: \n Title: ${reference[0].title} \n Access URL: ${reference[0].url}`
+              let resp_text = `${lastText} \n  ${retMessage} \n\n `
+              if (ref_text !== '')
+                resp_text = ` ${resp_text} Reference: \n ${ref_text} `
+
               // console.log('resp text:', resp_text)
               updateChat(
                 +uuid,
@@ -813,14 +823,14 @@ onUnmounted(() => {
               />
             </template>
           </NAutoComplete>
-          <NButton v-if="true" type="primary" :disabled="buttonDisabled" @click="handleSubmit">
+          <NButton v-if="true" type="primary" :disabled="buttonDisabled" @click="handleSubmitPy">
             <template #icon>
               <span class="dark:text-black">
                 <SvgIcon icon="ri:send-plane-fill" />
               </span>
             </template>
           </NButton>
-          <NButton v-if="false" type="warning" :disabled="buttonDisabled" @click="handleSubmitFile">
+          <NButton v-if="false" type="warning" :disabled="buttonDisabled" @click="handleSubmitPy">
             <template #icon>
               <span class="dark:text-black">
                 <SvgIcon icon="ri:send-plane-fill" />

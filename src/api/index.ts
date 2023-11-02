@@ -98,7 +98,7 @@ export function fetchChatAPIPy<T = any>(
     onDownloadProgress?: (progressEvent: AxiosProgressEvent) => void
   },
 ) {
-  // const settingStore = useSettingStore()
+  const settingStore = useSettingStore()
   // const authStore = useAuthStore()
 
   // const data: Record<string, any> = {
@@ -108,6 +108,8 @@ export function fetchChatAPIPy<T = any>(
   const data: Record<string, any> = {
     question: params.prompt,
     sessionId: params.options?.parentMessageId ?? '0',
+    temperature: settingStore.temperature,
+    top_p: settingStore.top_p,
   }
 
   // if (authStore.isChatGPTAPI) {
@@ -122,7 +124,7 @@ export function fetchChatAPIPy<T = any>(
   // console.log(data.sessionId)
 
   return post<T>({
-    url: 'https://bol.iwhalecloud.com/restapi/wctgpt',
+    url: 'https://bol.iwhalecloud.com/restapi-test/wctgpt',
     data,
     headers: {
       'Content-Type': 'application/json',
