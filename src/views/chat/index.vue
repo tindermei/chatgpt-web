@@ -830,7 +830,7 @@ onUnmounted(() => {
               </span>
             </template>
           </NButton>
-          <NButton v-if="false" type="warning" :disabled="buttonDisabled" @click="handleSubmitPy">
+          <NButton v-if="false" type="warning" :disabled="buttonDisabled" @click="handleSubmit">
             <template #icon>
               <span class="dark:text-black">
                 <SvgIcon icon="ri:send-plane-fill" />
