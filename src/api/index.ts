@@ -124,7 +124,7 @@ export function fetchChatAPIPy<T = any>(
   // console.log(data.sessionId)
 
   return post<T>({
-    url: 'https://bol.iwhalecloud.com/restapi-test/wctgpt',
+    url: 'https://bol.iwhalecloud.com/restapi/wctgpt',
     data,
     headers: {
       'Content-Type': 'application/json',
